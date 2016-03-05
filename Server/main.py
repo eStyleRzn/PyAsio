@@ -1,10 +1,10 @@
 import asyncio
-from classes.FileProtocol import EchoServerClientProtocol
+from classes.ServerTransceiver import ServerTransceiver
 
 loop = asyncio.get_event_loop()
 
 # Each client connection will create a new protocol instance
-serverObj = loop.create_server(EchoServerClientProtocol, None, 8888)
+serverObj = loop.create_server(ServerTransceiver, None, 8888)
 server = loop.run_until_complete(serverObj)
 
 # Serve requests until Ctrl+C is pressed

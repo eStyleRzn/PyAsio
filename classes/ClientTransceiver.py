@@ -1,75 +1,70 @@
 import base64
-import asyncio
 import json
 import os
 from pathlib import Path
+from classes.FileTransceiver import FileTransceiver
 
 # ======================================================================================================================
-class ClientTransceiver(asyncio.Protocol):
+class ClientTransceiver(FileTransceiver):
     chunk_size_bytes = 1024 * 1
     def __init__(self, file_path, loop):
 
-        # TODO throw an exception if the file_path is invalid
-        self.file_path = file_path
-        self.loop = loop
-        self.current_chunk = 0
-        self.transport = None
-        self.file_obj = None
-        self.__is_new_file = None
-        self.__file_size = None
-        self.__file_name = None
-        self.__upload_id = None
+        super(ClientTransceiver, self).__init__()
 
-    def __del__(self):
-        if self.file_obj:
-            self.file_obj.close()
+        # TODO throw an exception if the file_path is invalid
+        self._file_path = file_path
+
+        self.__loop = loop
+        self.__current_chunk = 0
+        self.__is_new_file = None
+        self.__file_name = None
 
     def connection_made(self, transport):
         # Evaluate the transport instance
-        self.transport = transport
+        self._transport = transport
 
         # Initialize upload session data
         self.__is_new_file = True
-        self.__file_name = Path(self.file_path).name
-        self.__file_size = os.path.getsize(self.file_path)
+        self.__file_name = Path(self._file_path).name
+        self._file_size = os.path.getsize(self._file_path)
 
         # Open the file for reading
-        self.file_obj = open(self.file_path, 'rb')
+        self._file_obj = open(self._file_path, 'rb')
 
-        if not self.send_data():
-            self.loop.stop()
+        if not self.__send_data():
+            self.__loop.stop()
 
     def data_received(self, data):
         # Parse input to the Python objects
         input = json.loads(data.decode())
 
         # Validate upload id
-        if not self.__upload_id:
-            self.__upload_id = input['upload_id']
+        if not self._upload_id:
+            self._upload_id = input['upload_id']
         else:
-            # Validate it!
-            self.__upload_id = self.__upload_id
+            # TODO Validate it!
+            self._upload_id = self._upload_id
 
         file_rest = input['rest']
 
         if 0 >= file_rest:
-            self.loop.stop()
+            self.__loop.stop()
 
         # TODO Validate hash
 
-        if not self.send_data():
-            self.loop.stop()
+        if not self.__send_data():
+            self.__loop.stop()
 
         print('Data received. File rest: {!r}'.format(input['rest']))
 
     def connection_lost(self, exc):
         print('The server closed the connection')
         print('Stop the event loop')
-        self.loop.stop()
+        self.__loop.stop()
 
-    def send_data(self):
+    def __send_data(self):
         # Read anew data chunk from the file
-        data = self.file_obj.read(ClientTransceiver.chunk_size_bytes)
+        data = self._file_obj.read(ClientTransceiver.chunk_size_bytes)
 
         if not len(data):
             return False
@@ -78,7 +73,7 @@ class ClientTransceiver(asyncio.Protocol):
         outs = self.__json_data(data).encode()
 
         # Transmit the packet
-        self.transport.write(outs)
+        self._transport.write(outs)
 
         print('Data sent!')
         return True
@@ -93,13 +88,13 @@ class ClientTransceiver(asyncio.Protocol):
 
             # Create header packet
             outs = json.dumps({'mime_type': 'application/octet-stream', \
-                               'size': self.__file_size, \
+                               'size': self._file_size, \
                                'name': self.__file_name, \
                                'data': enc_data})
         else:
             # Create chunk packet
             outs = json.dumps({'mime_type': 'application/octet-stream', \
-                               'upload_id': self.__upload_id, \
+                               'upload_id': self._upload_id, \
                                'data': enc_data})
 
         dummy = json.loads(outs)

@@ -37,7 +37,7 @@ class ClientTransceiver(FileTransceiver):
 
     def data_received(self, data):
         # Parse input to the Python objects
-        input = json.loads(data.decode())
+        input = json.loads(self._read(data))
 
         # Validate upload id
         if not self._upload_id:
@@ -70,11 +70,8 @@ class ClientTransceiver(FileTransceiver):
         if not len(data):
             return False
 
-        # Wrap file content into json packet
-        outs = self.__json_data(data).encode()
-
-        # Transmit the packet
-        self._transport.write(outs)
+        # Wrap file content into json packet and transmit it
+        self._write(self.__json_data(data))
 
         # Call the callback to increment the progress
         self.__progress_callbck(len(data))

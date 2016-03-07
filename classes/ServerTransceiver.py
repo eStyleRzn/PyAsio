@@ -34,9 +34,7 @@ class  ServerTransceiver(FileTransceiver):
     def __process_received(self, data):
 
         # Parse input to the Python objects
-        dummy = data.decode()
-        input = json.loads(dummy)
-        # input = json.load(data)
+        input = json.loads(self._read(data))
 
         # New file or a chunk
         if 'name' in input.keys():
@@ -82,7 +80,7 @@ class  ServerTransceiver(FileTransceiver):
 
         # Send response back to the client
         outs = json.dumps({'upload_id': upload_id, 'rest': rest, 'hash': hash_str})
-        self._transport.write(outs.encode())
+        self._write(outs)
 
         response = 'Response from the transceiver object id=' + str(id(self._transport))
         print('Send: {!r}'.format(response))

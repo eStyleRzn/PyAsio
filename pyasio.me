@@ -1,21 +1,28 @@
-Upload API JSON scheme
+Simple client-server file upload example
+
+The example is written on Python 3.4.4 language,
+uses Python's asyncio as socket library,
+uses PyQt5 library for client side UI implementation,
+uses Python's zlib library to compress the data before the transmission.
+
+File upload API JSON scheme
 
 file upload input
 {
 	"mime_type" : "application/octet-stream”,
 	"size" : 230783,
-	"name" : "fruit-2.0.0.tgz",
-	"data": "mF6/622swKoG0kbVvS8qCyF5r48CuyiCO60Mcl/LnOyufzAEZ5xxxhn/IT4DO4Fr4QAMAAA="
+	"name" : "some_file_name.example",
+	"data": "base64_encoded_string=="
 }
 
 file chunk upload input
 {
 	"mime_type" : "application/octet-stream”,
 	"upload_id" : "v0k84B0AT9fYkfMUp0sBTA",
-	"data" : "mF6/622swKoG0kbVvS8qCyF5r48CuyiCO60Mcl/LnOyufzAEZ5xxxhn/IT4DO4Fr4QAMAAA="
+	"data" : "base64_encoded_string=="
 }
 
-response
+server side response
 {
 	"upload_id": "v0k84B0AT9fYkfMUp0sBTA",
 	"rest" : 2456,

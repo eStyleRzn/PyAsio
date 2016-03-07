@@ -7,7 +7,7 @@ from classes.FileTransceiver import FileTransceiver
 # ======================================================================================================================
 class ClientTransceiver(FileTransceiver):
     chunk_size_bytes = 1024 * 1
-    def __init__(self, file_path, loop):
+    def __init__(self, file_path, loop, progress_callback):
 
         super(ClientTransceiver, self).__init__()
 
@@ -18,6 +18,7 @@ class ClientTransceiver(FileTransceiver):
         self.__current_chunk = 0
         self.__is_new_file = None
         self.__file_name = None
+        self.__progress_callbck = progress_callback
 
     def connection_made(self, transport):
         # Evaluate the transport instance
@@ -75,7 +76,9 @@ class ClientTransceiver(FileTransceiver):
         # Transmit the packet
         self._transport.write(outs)
 
-        print('Data sent!')
+        # Call the callback to increment the progress
+        self.__progress_callbck(len(data))
+
         return True
 
     def __json_data(self, data):

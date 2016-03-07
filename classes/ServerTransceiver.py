@@ -41,17 +41,16 @@ class  ServerTransceiver(FileTransceiver):
             self._file_size = input['size']
             self._file_rest = self._file_size
 
-            # TODO Generate new upload_id
-            self._upload_id = 'v0k84B0AT9fYkfMUp0sBTA'
+            # Generate new upload_id
+            self._upload_id = self._gen_upload_id()
 
             # Open destination file to write data
-            file_path = str(self.__out_dir) + '/' + input['name']
-            self._file_obj = open(file_path, 'wb')
+            self._file_path = str(self.__out_dir) + '/' + input['name']
+            self._file_obj = open(self._file_path, 'wb')
 
-            print('Receiving file: ' + file_path)
+            print('Receiving file: ' + self._file_path)
         else:
             upload_id = input['upload_id']
-            # TODO validate upload_id
             if self._upload_id != upload_id:
                 print('Error. upload_id mismatch!')
 
@@ -75,9 +74,9 @@ class  ServerTransceiver(FileTransceiver):
         hash_str = ''
 
         if 0 >= self._file_rest:
-            # TODO Calculate file's hash
+            # Calculate file's hash
             self._file_obj.close()
-            hash_str = 'fsgdsd234fdf'
+            hash_str = self._calc_hash()
 
         # Send response back to the client
         outs = json.dumps({'upload_id': upload_id, 'rest': rest, 'hash': hash_str})

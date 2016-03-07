@@ -1,5 +1,8 @@
 import asyncio
 import zlib
+import hashlib
+import random
+import sys
 
 # ======================================================================================================================
 class  FileTransceiver(asyncio.Protocol):
@@ -27,3 +30,15 @@ class  FileTransceiver(asyncio.Protocol):
     def _read(self, data):
         in_bytes = zlib.decompress(data)
         return in_bytes.decode()
+
+    def _calc_hash(self):
+        # Calculate hash of the file. For this task we do not face any security issues, so use md5 algorithm
+        hash_md5 = hashlib.md5()
+        with open(self._file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def _gen_upload_id(self):
+        return str(random.randrange(sys.maxsize))
+

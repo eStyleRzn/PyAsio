@@ -6,6 +6,7 @@ from classes.ClientTransceiver import ClientTransceiver
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 from Client.Ui_UploadDlg import Ui_UploadDlg
 
+# ======================================================================================================================
 class UploadDlg(QDialog):
     def __init__(self):
         super(UploadDlg, self).__init__()
@@ -33,11 +34,14 @@ class UploadDlg(QDialog):
         # Validate mandatory parameters
         if path_obj.exists() and len(server_name):
             # Before we start new import session reset the progress
+            self.ui.progressBar.setFormat('')
             self.ui.progressBar.setValue(0)
             self.ui.progressBar.setMaximum(os.path.getsize(file_path))
 
             try:
                 self.__start_loop(server_name, file_path)
+                self.ui.progressBar.setValue(0)
+                self.ui.progressBar.setFormat('The file was successfully uploaded!!!')
             except:
                 QMessageBox.critical(self, 'Error', 'Error uploading the file! {!r}'.format(sys.exc_info()))
 

@@ -29,7 +29,13 @@ class Ui_UploadDlg(object):
         self.btnStart.setObjectName("btnStart")
         self.gridLayout.addWidget(self.btnStart, 5, 0, 1, 2)
         self.progressBar = QtWidgets.QProgressBar(UploadDlg)
+        self.progressBar.setStyleSheet("text-align: center;\n"
+"")
         self.progressBar.setProperty("value", 0)
+        self.progressBar.setTextVisible(True)
+        self.progressBar.setOrientation(QtCore.Qt.Horizontal)
+        self.progressBar.setInvertedAppearance(False)
+        self.progressBar.setFormat("")
         self.progressBar.setObjectName("progressBar")
         self.gridLayout.addWidget(self.progressBar, 6, 0, 1, 2)
         self.lblSelectFile = QtWidgets.QLabel(UploadDlg)

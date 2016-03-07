@@ -43,13 +43,16 @@ class ClientTransceiver(FileTransceiver):
         if not self._upload_id:
             self._upload_id = input['upload_id']
         else:
-            # TODO Validate it!
-            self._upload_id = self._upload_id
+            # Validate it!
+            if self._upload_id != input['upload_id']:
+                print('Error. Upload id mismatch!')
 
         file_rest = input['rest']
 
         if 0 >= file_rest:
-            # TODO Validate hash
+            # Validate hash
+            if self._calc_hash() != input['hash']:
+                print('Error. Hash mismatch!')
 
             self._file_obj.close()
             self.__loop.stop()

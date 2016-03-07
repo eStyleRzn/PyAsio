@@ -40,8 +40,11 @@ class UploadDlg(QDialog):
 
             try:
                 self.__start_loop(server_name, file_path)
-                self.ui.progressBar.setValue(0)
-                self.ui.progressBar.setFormat('The file was successfully uploaded!!!')
+
+                # Finished or not
+                if self.ui.progressBar.maximum() == self.ui.progressBar.value():
+                    self.ui.progressBar.setValue(0)
+                    self.ui.progressBar.setFormat('The file was successfully uploaded!!!')
             except:
                 QMessageBox.critical(self, 'Error', 'Error uploading the file! {!r}'.format(sys.exc_info()))
 

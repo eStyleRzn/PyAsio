@@ -46,6 +46,7 @@ class ClientTransceiver(FileTransceiver):
             # Validate it!
             if self._upload_id != input['upload_id']:
                 print('Error. Upload id mismatch!')
+                self.__loop.stop()
 
         file_rest = input['rest']
 

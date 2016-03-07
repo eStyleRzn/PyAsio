@@ -1,5 +1,6 @@
 import os
 import asyncio
+import sys
 from pathlib import Path
 from classes.ClientTransceiver import ClientTransceiver
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
@@ -9,8 +10,6 @@ class UploadDlg(QDialog):
     def __init__(self):
         super(UploadDlg, self).__init__()
 
-        self.__event_loop = asyncio.get_event_loop()
-
         # Set up the user interface from Designer.
         self.ui = Ui_UploadDlg()
         self.ui.setupUi(self)
@@ -18,9 +17,6 @@ class UploadDlg(QDialog):
         # Connect up the buttons.
         self.ui.btnSelect.clicked.connect(self.__file_select)
         self.ui.btnStart.clicked.connect(self.__start)
-
-    def __del__(self):
-        self.__event_loop.close()
 
     def __file_select(self):
         file_name = QFileDialog.getOpenFileName()
@@ -41,15 +37,20 @@ class UploadDlg(QDialog):
             self.ui.progressBar.setMaximum(os.path.getsize(file_path))
 
             try:
-                data_exchange = self.__event_loop.create_connection(lambda: ClientTransceiver(file_path,
-                                                                                              self.__event_loop,
-                                                                                              self.progress_callback),
-                                                                    server_name, 8888)
-                self.__event_loop.run_until_complete(data_exchange)
-                self.__event_loop.run_forever()
+                self.__start_loop(server_name, file_path)
             except:
-                QMessageBox.critical(self, 'Error', 'Error uploading the file!')
+                QMessageBox.critical(self, 'Error', 'Error uploading the file! {!r}'.format(sys.exc_info()))
 
     def progress_callback(self, val):
         # increment the progress
         self.ui.progressBar.setValue(self.ui.progressBar.value() + val)
+
+    def __start_loop(self, server_name, file_path):
+        event_loop = asyncio.new_event_loop()
+        data_exchange = event_loop.create_connection(lambda: ClientTransceiver(file_path,
+                                                                               event_loop,
+                                                                               self.progress_callback),
+                                                     server_name, 8888)
+        event_loop.run_until_complete(data_exchange)
+        event_loop.run_forever()
+        event_loop.close()

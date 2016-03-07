@@ -14,6 +14,7 @@ class  FileTransceiver(asyncio.Protocol):
         self._upload_id = None
 
     def __del__(self):
+        # Close the file for sure
         if self._file_obj:
             self._file_obj.close()
 

@@ -49,12 +49,14 @@ class ClientTransceiver(FileTransceiver):
         file_rest = input['rest']
 
         if 0 >= file_rest:
-            self.__loop.stop()
+            # TODO Validate hash
 
-        # TODO Validate hash
-
-        if not self.__send_data():
+            self._file_obj.close()
             self.__loop.stop()
+        else:
+            if not self.__send_data():
+                self._file_obj.close()
+                self.__loop.stop()
 
         print('Data received. File rest: {!r}'.format(input['rest']))
 

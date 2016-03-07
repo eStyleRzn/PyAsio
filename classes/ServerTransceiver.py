@@ -76,6 +76,7 @@ class  ServerTransceiver(FileTransceiver):
 
         if 0 >= self._file_rest:
             # TODO Calculate file's hash
+            self._file_obj.close()
             hash_str = 'fsgdsd234fdf'
 
         # Send response back to the client
